@@ -1,42 +1,82 @@
-# Tech interview smart contracts coding problem
+# Home Assessment
 
-This is a Solidity coding problem for tech interviews. It is designed to take **no more than a few hours**.
+## Overview
+This repository contains my solution to the smart contract home assessment.
 
-## Getting setup
+The objective was to update and implement logic in `Token.sol` such that all provided test cases pass successfully.
 
-Ensure you have installed:
+---
 
-- [Node.js](https://nodejs.org/) **v20+**
-- [Hardhat](https://hardhat.org/) (already included as a dev dependency)
+## Mental Model & Approach
 
-## Instructions
+I structured the solution around three core functionalities:
 
-### 1. Setup
+### 1. Mint
 
-Clone the repo locally and install the NPM dependencies using npm:
+Minting allows users to receive WETH tokens equivalent to the ETH sent.
 
-### 2. Task
+#### Conditions handled:
+- Tokens are minted when ETH is sent
+- Supports direct transfers after minting
+- Supports indirect transfers via contract logic
 
-**You only need to write code in the `Token.sol` file. Please ensure all the unit tests pass to successfully complete this part.**
+---
 
-The contracts consist of a mintable ERC-20 `Token` (which is similar to a _Wrapped ETH_ token). Callers mint tokens by depositing ETH. They can then burn their token balance to get the equivalent amount of deposited ETH back.
+### 2. Burn
 
-In addition, token holders can receive dividend payments in ETH in proportion to their token balance relative to the total supply. Dividends are assigned by looping through the list of holders.
+Burning allows users to redeem ETH by burning their WETH tokens.
 
-Dividend payments are assigned to token holders' addresses. This means that even if a token holder were to send their tokens to somebody else later on or burn their tokens, they would still be entitled to the dividends they accrued whilst they were holding the tokens. 
+#### Conditions handled:
+- Burns tokens from `msg.sender`
+- Sends equivalent ETH to the destination address
+- Maintains correct balance updates
 
-You will thus need to **efficiently** keep track of individual token holder addresses in order to assign dividend payouts to holders with minimal gas cost.
+---
 
-For a clearer understanding of how the code is supposed to work please refer to the tests in the `test` folder.
+### 3. Dividend System
 
-Your Solution must pass the test: `npm run test` - run the tests (Hardhat)
+Dividend represents distribution of ETH proportional to token holdings.
 
-![Test Result](./test-result.png)
+#### Conditions handled:
+- Records dividend deposits
+- Prevents empty dividend distribution
+- Tracks holders during:
+  - Minting
+  - Burning
+  - Transfers
+- Ensures proportional distribution based on total supply
+- Supports:
+  - Compounding payouts
+  - Partial withdrawals
+  - Withdrawals even after user exits (balance becomes 0)
 
-### 3: Submission
+---
 
-Record a short [Loom video](https://www.loom.com) showing how it works, including the expected and actual behavior if you're testing.
+## Internal Helper
 
-### 4. Deadline
+### `_updateHolder(address user)`
 
-Please complete and submit the result within 1 ~ 2 hours unless otherwise discussed.
+Maintains the state of token holders.
+
+#### Responsibilities:
+- Adds new holders
+- Tracks holder status
+- Removes holders when balance becomes zero
+
+---
+
+##  Tech Stack
+
+- Solidity
+- Hardhat
+- Chai (testing)
+
+---
+
+## How to Run
+
+```bash
+npm install
+npx hardhat test
+
+
